@@ -9,7 +9,7 @@ const FALLBACKS: &[&str] = &[
 ];
 
 #[cfg(target_os = "linux")]
-const FALLBACKS: &[&str] = &["/usr/bin/zed", "/usr/bin/zeditor"];
+const FALLBACKS: &[&str] = &["/usr/bin/zed", "/usr/bin/zedit", "/usr/bin/zeditor"];
 
 #[cfg(target_os = "windows")]
 const FALLBACKS: &[&str] = &[];

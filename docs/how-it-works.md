@@ -37,7 +37,7 @@ If no field yields a directory, the action exits 1 with `no directory in plugin 
 | OS      | Fallbacks                                                        |
 | ------- | ---------------------------------------------------------------- |
 | macOS   | `/usr/local/bin/zed`, `/Applications/Zed.app/Contents/MacOS/cli` |
-| Linux   | `/usr/bin/zed`, `/usr/bin/zeditor`                               |
+| Linux   | `/usr/bin/zed`, `/usr/bin/zedit`, `/usr/bin/zeditor`             |
 | Windows | none (PATH only)                                                 |
 
 If nothing is found, the action exits 1 and prints a hint to install the CLI from Zed's command palette (`cli: install cli binary`), referencing the [Zed CLI reference](https://zed.dev/docs/reference/cli).
