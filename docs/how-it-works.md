@@ -31,8 +31,10 @@ If no field yields a directory, the action exits 1 with `no directory in plugin 
 
 ## Zed lookup order
 
-1. `zed` on `PATH` (probed with `zed --version`)
-2. Platform fallbacks, in order:
+1. `ZED_BIN` from the environment, used as-is
+2. `ZED_BIN` from `$HERDR_PLUGIN_CONFIG_DIR/.env` (dotenv-style `KEY=VALUE` lines; blank lines, `#` comments, a leading `export `, and matching quotes are handled)
+3. `zed` on `PATH` (probed with `zed --version`)
+4. Platform fallbacks, in order:
 
 | OS      | Fallbacks                                                        |
 | ------- | ---------------------------------------------------------------- |
@@ -48,7 +50,7 @@ The context is parsed by [`serde_json`](https://crates.io/crates/serde_json) int
 
 ## Troubleshooting
 
-- **`zed CLI not found`** — the CLI is not on PATH and not at a fallback location. Open Zed's command palette and run `cli: install cli binary` ([reference](https://zed.dev/docs/reference/cli)), then re-run the action.
+- **`zed CLI not found`** — the CLI is not on PATH and not at a fallback location. Open Zed's command palette and run `cli: install cli binary` ([reference](https://zed.dev/docs/reference/cli)), or set `ZED_BIN` in the plugin config `.env`, then re-run the action.
 - **`no directory in plugin context`** — the action ran without workspace context. Invoke it from inside a herdr workspace (e.g. via the keybinding), not from a bare shell.
 - **`zed exited with ...`** — Zed launched but returned a non-zero status; run `zed -n <dir>` manually to see the underlying error.
 - Action logs: `herdr plugin log list --plugin open-in-zed`.

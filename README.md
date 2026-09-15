@@ -38,6 +38,16 @@ herdr plugin action invoke open-in-zed.open
 
 The action resolves a directory from the plugin context: the worktree checkout path first (so a focused subdirectory still opens the repo root), then the workspace cwd, then the focused pane cwd. Details in [docs/how-it-works.md](docs/how-it-works.md).
 
+## Configuration
+
+The plugin finds the Zed CLI on its own: `zed` on `PATH`, then the known install locations (`/usr/bin/zed`, `/usr/bin/zedit`, `/usr/bin/zeditor` on Linux). To point it at a specific binary, set `ZED_BIN` to the command or absolute path (no arguments):
+
+```
+echo 'ZED_BIN=zedit' >> "$(herdr plugin config-dir open-in-zed)/.env"
+```
+
+`ZED_BIN` is read from the environment first, then from that `.env` file (a simple `KEY=VALUE` subset: `#` comments, blank lines, optional `export ` prefix, and matching quotes are handled). When set, the automatic lookup is skipped and the configured value is used as-is.
+
 ## Development
 
 See [CONTRIBUTING.md](CONTRIBUTING.md) and [docs/development.md](docs/development.md).

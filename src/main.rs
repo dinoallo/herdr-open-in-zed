@@ -31,11 +31,7 @@ fn run() -> Result<(), String> {
 
     let dir = context::dir_from_context(&ctx)?;
 
-    let zed = zed::find_zed().ok_or_else(|| {
-        "zed CLI not found; install it from Zed's command palette \
-         (\"cli: install cli binary\"), see https://zed.dev/docs/reference/cli"
-            .to_string()
-    })?;
+    let zed = zed::find_zed().ok_or_else(zed::not_found_message)?;
 
     let status = Command::new(&zed)
         .args(["-n", &dir])
