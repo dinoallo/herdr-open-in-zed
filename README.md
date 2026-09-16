@@ -12,6 +12,8 @@ herdr plugin that opens the current workspace in the Zed editor.
 - Rust toolchain (the plugin builds itself on install)
 - The Zed CLI on the machine running the local Herdr client. Install it from Zed's command palette: run `cli: install cli binary`. See the [Zed CLI reference](https://zed.dev/docs/reference/cli). On Linux, distribution packages usually ship it as `zed`, `zedit` (Gentoo), or `zeditor` (Debian/Ubuntu). Older Herdr builds that lack the native client API instead require Zed on the machine running the plugin.
 
+On Herdr builds that ship the `type = "open_workspace"` keybinding and `[[openers]]` config, this plugin is optional: you can bind the built-in command and define a Zed opener locally instead. The plugin remains the way to open workspaces from older Herdr builds, and it stays useful when the opener needs logic beyond an argv template.
+
 ## Install
 
 ```

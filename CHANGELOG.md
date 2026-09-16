@@ -10,6 +10,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 - Native `client.open_workspace` support, allowing remote herdr workspaces to open in the Zed client over SSH.
 
+### Notes
+
+- On herdr builds that ship the built-in `open_workspace` keybinding and `[[openers]]` config, installing this plugin is no longer required for the simple `zed -n <path>` case. The plugin still covers older herdr builds and openers that need logic beyond argv templates.
+
 ## 0.1.0
 
 ### Added
