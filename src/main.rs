@@ -8,6 +8,7 @@
 //! Zed CLI reference: https://zed.dev/docs/reference/cli
 
 mod context;
+mod native;
 mod zed;
 
 use std::process::Command;
@@ -30,6 +31,10 @@ fn run() -> Result<(), String> {
     };
 
     let dir = context::dir_from_context(&ctx)?;
+
+    if native::try_open_workspace()? {
+        return Ok(());
+    }
 
     let zed = zed::find_zed().ok_or_else(zed::not_found_message)?;
 

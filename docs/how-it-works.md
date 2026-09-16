@@ -1,15 +1,17 @@
 # How it works
 
-The `open` action is a small Rust program (sources under `src/`). When herdr invokes it, herdr sets `HERDR_PLUGIN_CONTEXT_JSON` with the invocation context. The binary reads that JSON, picks a directory, finds the `zed` CLI, and runs `zed -n <dir>` (open in a new window). Zed's CLI detaches by itself, so the plugin just waits for the launch to succeed and exits.
+The `open` action is a small Rust program (sources under `src/`). When herdr invokes it, herdr sets `HERDR_PLUGIN_CONTEXT_JSON` with the invocation context. The binary reads that JSON, picks a directory, and either asks the local herdr client to open the workspace or launches `zed -n <dir>` directly on the server.
 
 ## Context
 
 Environment variables set by herdr (see the [plugin docs](https://herdr.dev/docs/plugins/)):
 
-| Variable                                                                           | Used for                                                           |
-| ---------------------------------------------------------------------------------- | ------------------------------------------------------------------ |
-| `HERDR_PLUGIN_CONTEXT_JSON`                                                        | Source of the directory and nothing else; must be present          |
-| `HERDR_PLUGIN_ID`, `HERDR_PLUGIN_ACTION_ID`, `HERDR_PLUGIN_ROOT`, `HERDR_BIN_PATH` | Set by herdr but unused by this plugin (no herdr callbacks needed) |
+| Variable                                                         | Used for                                                         |
+| ---------------------------------------------------------------- | ---------------------------------------------------------------- |
+| `HERDR_PLUGIN_CONTEXT_JSON`                                      | Source of the directory; must be present                         |
+| `HERDR_BIN_PATH`                                                 | Used to detect and invoke the native `client.open_workspace` API |
+| `HERDR_WORKSPACE_ID`                                             | Passed to `client.open_workspace`                                |
+| `HERDR_PLUGIN_ID`, `HERDR_PLUGIN_ACTION_ID`, `HERDR_PLUGIN_ROOT` | Set by herdr but otherwise unused                                |
 
 Fields read from the context JSON (all optional; absent when null or blank):
 
@@ -28,6 +30,27 @@ worktree.checkout_path > workspace_cwd > focused_pane_cwd > error
 `worktree.checkout_path` wins because `workspace_cwd` may be a subdirectory the user has `cd`-ed into; opening Zed there would show the subdirectory as the project root instead of the repository. A field counts only if it is a present, non-blank string; a non-string or whitespace-only value counts as absent and the chain falls through to the next candidate.
 
 If no field yields a directory, the action exits 1 with `no directory in plugin context`. This happens when the action is invoked outside a workspace context.
+
+## Native client API
+
+When `HERDR_BIN_PATH` and `HERDR_WORKSPACE_ID` are available, the plugin first runs:
+
+```
+herdr status server --json
+```
+
+If the response advertises `capabilities.client_open_workspace`, it invokes:
+
+```
+herdr open-workspace <workspace-id> --opener zed
+```
+
+The server forwards the request to the local herdr client. That client resolves its selected endpoint:
+
+- Local endpoint: `zed -n <workspace-path>`
+- SSH endpoint: `zed -n ssh://<target>/<workspace-path>`
+
+This path supports `herdr --remote` and saved SSH machines without requiring Zed on the remote server. If the capability is absent, the plugin continues with the direct Zed lookup below.
 
 ## Zed lookup order
 
@@ -52,5 +75,6 @@ The context is parsed by [`serde_json`](https://crates.io/crates/serde_json) int
 
 - **`zed CLI not found`** — the CLI is not on PATH and not at a fallback location. Open Zed's command palette and run `cli: install cli binary` ([reference](https://zed.dev/docs/reference/cli)), or set `ZED_BIN` in the plugin config `.env`, then re-run the action.
 - **`no directory in plugin context`** — the action ran without workspace context. Invoke it from inside a herdr workspace (e.g. via the keybinding), not from a bare shell.
+- **`herdr open-workspace failed`** — the server advertised the native API but could not complete it. Check that a foreground client is attached and that `zed` is available on the machine running that client.
 - **`zed exited with ...`** — Zed launched but returned a non-zero status; run `zed -n <dir>` manually to see the underlying error.
 - Action logs: `herdr plugin log list --plugin open-in-zed`.
